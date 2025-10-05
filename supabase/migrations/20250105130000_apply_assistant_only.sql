@@ -1,8 +1,4 @@
--- ============================================================================
--- SISTEMA DE ASISTENTE VIRTUAL PROACTIVO
--- ============================================================================
--- Este sistema implementa un asistente de IA con personalidad y memoria
--- que puede actuar proactivamente para ayudar al profesional
+-- Aplicar solo las tablas del asistente (standalone)
 
 -- Tabla de configuración del asistente
 CREATE TABLE IF NOT EXISTS assistant_config (
@@ -126,10 +122,10 @@ CREATE TABLE IF NOT EXISTS assistant_suggestions (
 );
 
 -- Índices para mejorar performance
-CREATE INDEX idx_assistant_memory_profesional ON assistant_memory(profesional_id, created_at DESC);
-CREATE INDEX idx_assistant_memory_tipo ON assistant_memory(tipo, profesional_id);
-CREATE INDEX idx_assistant_actions_profesional ON assistant_actions(profesional_id, estado, ejecutar_en);
-CREATE INDEX idx_assistant_suggestions_profesional ON assistant_suggestions(profesional_id, estado, relevancia DESC);
+CREATE INDEX IF NOT EXISTS idx_assistant_memory_profesional ON assistant_memory(profesional_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_assistant_memory_tipo ON assistant_memory(tipo, profesional_id);
+CREATE INDEX IF NOT EXISTS idx_assistant_actions_profesional ON assistant_actions(profesional_id, estado, ejecutar_en);
+CREATE INDEX IF NOT EXISTS idx_assistant_suggestions_profesional ON assistant_suggestions(profesional_id, estado, relevancia DESC);
 
 -- Row Level Security
 ALTER TABLE assistant_config ENABLE ROW LEVEL SECURITY;
@@ -138,49 +134,60 @@ ALTER TABLE assistant_actions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assistant_suggestions ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de seguridad para assistant_config
+DROP POLICY IF EXISTS "Usuarios pueden ver su propia configuración" ON assistant_config;
 CREATE POLICY "Usuarios pueden ver su propia configuración"
   ON assistant_config FOR SELECT
   USING (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden actualizar su propia configuración" ON assistant_config;
 CREATE POLICY "Usuarios pueden actualizar su propia configuración"
   ON assistant_config FOR UPDATE
   USING (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden crear su configuración" ON assistant_config;
 CREATE POLICY "Usuarios pueden crear su configuración"
   ON assistant_config FOR INSERT
   WITH CHECK (auth.uid() = profesional_id);
 
 -- Políticas de seguridad para assistant_memory
+DROP POLICY IF EXISTS "Usuarios pueden ver su propia memoria" ON assistant_memory;
 CREATE POLICY "Usuarios pueden ver su propia memoria"
   ON assistant_memory FOR SELECT
   USING (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden crear memoria" ON assistant_memory;
 CREATE POLICY "Usuarios pueden crear memoria"
   ON assistant_memory FOR INSERT
   WITH CHECK (auth.uid() = profesional_id);
 
 -- Políticas de seguridad para assistant_actions
+DROP POLICY IF EXISTS "Usuarios pueden ver sus propias acciones" ON assistant_actions;
 CREATE POLICY "Usuarios pueden ver sus propias acciones"
   ON assistant_actions FOR SELECT
   USING (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden crear acciones" ON assistant_actions;
 CREATE POLICY "Usuarios pueden crear acciones"
   ON assistant_actions FOR INSERT
   WITH CHECK (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden actualizar sus acciones" ON assistant_actions;
 CREATE POLICY "Usuarios pueden actualizar sus acciones"
   ON assistant_actions FOR UPDATE
   USING (auth.uid() = profesional_id);
 
 -- Políticas de seguridad para assistant_suggestions
+DROP POLICY IF EXISTS "Usuarios pueden ver sus propias sugerencias" ON assistant_suggestions;
 CREATE POLICY "Usuarios pueden ver sus propias sugerencias"
   ON assistant_suggestions FOR SELECT
   USING (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden crear sugerencias" ON assistant_suggestions;
 CREATE POLICY "Usuarios pueden crear sugerencias"
   ON assistant_suggestions FOR INSERT
   WITH CHECK (auth.uid() = profesional_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden actualizar sus sugerencias" ON assistant_suggestions;
 CREATE POLICY "Usuarios pueden actualizar sus sugerencias"
   ON assistant_suggestions FOR UPDATE
   USING (auth.uid() = profesional_id);
@@ -197,6 +204,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Trigger para crear configuración automáticamente al crear un usuario
+DROP TRIGGER IF EXISTS trigger_inicializar_asistente ON auth.users;
 CREATE TRIGGER trigger_inicializar_asistente
   AFTER INSERT ON auth.users
   FOR EACH ROW

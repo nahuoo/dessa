@@ -12,7 +12,7 @@ interface FloatingAssistantProps {
 }
 
 export function FloatingAssistant({
-  profesionalId,
+  profesionalId: _profesionalId,
   nombreAsistente = 'Dessa'
 }: FloatingAssistantProps) {
   const [estado, setEstado] = useState<EstadoChatAsistente>({
@@ -69,7 +69,7 @@ export function FloatingAssistant({
       rol: 'usuario',
       contenido: input,
       timestamp: new Date().toISOString(),
-      metadata: { contexto },
+      metadata: { contexto: contexto || undefined },
     };
 
     setEstado(prev => ({

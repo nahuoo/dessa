@@ -59,14 +59,12 @@ export async function POST(req: Request) {
   try {
     const { mensaje, contexto, historial = [] }: ChatRequest = await req.json();
 
-    // Obtener configuración del asistente
-    const { data: config } = await supabase
-      .from('assistant_config')
-      .select('*')
-      .eq('profesional_id', user.id)
-      .single();
-
-    const nombreAsistente = config?.nombre || 'Dessa';
+    // Obtener configuración del asistente (opcional - para futuras personalizaciones)
+    // const { data: config } = await supabase
+    //   .from('assistant_config')
+    //   .select('*')
+    //   .eq('profesional_id', user.id)
+    //   .single();
 
     // Construir contexto enriquecido
     let contextoInfo = '';
@@ -106,7 +104,6 @@ export async function POST(req: Request) {
       model: openrouter(MODELS.DEEPSEEK),
       messages: mensajes,
       temperature: 0.8,
-      maxSteps: 1,
     });
 
     // Guardar en memoria
@@ -177,7 +174,7 @@ function detectarAcciones(respuesta: string): Array<{
   if (respuesta.toLowerCase().includes('recordatorio') ||
       respuesta.toLowerCase().includes('recordar')) {
     const match = respuesta.match(/recordar\s+([^.]+)/i);
-    if (match) {
+    if (match && match[1]) {
       acciones.push({
         tipo: 'recordatorio',
         titulo: match[1],
@@ -191,7 +188,7 @@ function detectarAcciones(respuesta: string): Array<{
   if (respuesta.toLowerCase().includes('buscar') ||
       respuesta.toLowerCase().includes('buscaré')) {
     const match = respuesta.match(/buscar\s+([^.]+)/i);
-    if (match) {
+    if (match && match[1]) {
       acciones.push({
         tipo: 'busqueda',
         titulo: `Buscar: ${match[1]}`,

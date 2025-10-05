@@ -30,7 +30,6 @@ Proporciona un insight breve (2-3 líneas) sobre qué indica esta distribución 
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      maxSteps: 1,
     });
 
     return text || 'No se pudo generar insight';
@@ -74,7 +73,6 @@ Proporciona un insight breve (2-3 líneas) sobre la tendencia y una sugerencia p
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      maxSteps: 1,
     });
 
     return text || 'No se pudo generar insight';
@@ -111,7 +109,6 @@ Proporciona un insight breve (2-3 líneas) sobre la carga de trabajo y una recom
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      maxSteps: 1,
     });
 
     return text || 'No se pudo generar insight';
@@ -140,7 +137,6 @@ export async function analyzeRecentPatterns(sessionNotes: string[]): Promise<str
         },
       ],
       temperature: 0.7,
-      maxSteps: 1,
     });
 
     return text || 'No se pudo generar análisis';

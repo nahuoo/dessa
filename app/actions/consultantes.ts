@@ -4,14 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { consultanteSchema, updateConsultanteSchema } from '@/lib/utils/validators';
-import { encrypt, decrypt, encryptObject, decryptObject } from '@/lib/utils/encryption';
+import { encrypt, decrypt } from '@/lib/utils/encryption';
 
 /**
  * Server Actions para gestión de consultantes
  * Todos los datos sensibles se cifran antes de guardarse en la BD
  */
-
-const SENSITIVE_FIELDS = ['nombre_completo', 'email', 'telefono', 'motivo_consulta'] as const;
 
 export async function createConsultante(formData: FormData) {
   const supabase = await createClient();
@@ -41,7 +39,7 @@ export async function createConsultante(formData: FormData) {
   const validatedFields = consultanteSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -59,7 +57,8 @@ export async function createConsultante(formData: FormData) {
     estado: data.estado,
   };
 
-  const { data: consultante, error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('consultantes')
     .insert(encryptedData)
     .select()
@@ -103,7 +102,7 @@ export async function updateConsultante(formData: FormData) {
   const validatedFields = updateConsultanteSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -120,7 +119,8 @@ export async function updateConsultante(formData: FormData) {
     estado: data.estado,
   };
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('consultantes')
     .update(encryptedData)
     .eq('id', consultanteId)
@@ -188,12 +188,14 @@ export async function getConsultante(consultanteId: string) {
   }
 
   // Descifrar campos sensibles
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const dataAny = data as any;
   const decrypted = {
-    ...data,
-    nombre_completo: decrypt(data.nombre_completo),
-    email: data.email ? decrypt(data.email) : null,
-    telefono: data.telefono ? decrypt(data.telefono) : null,
-    motivo_consulta: data.motivo_consulta ? decrypt(data.motivo_consulta) : null,
+    ...dataAny,
+    nombre_completo: decrypt(dataAny.nombre_completo),
+    email: dataAny.email ? decrypt(dataAny.email) : null,
+    telefono: dataAny.telefono ? decrypt(dataAny.telefono) : null,
+    motivo_consulta: dataAny.motivo_consulta ? decrypt(dataAny.motivo_consulta) : null,
   };
 
   return { data: decrypted, error: null };
@@ -230,7 +232,8 @@ export async function getConsultantes(estado?: string) {
   }
 
   // Descifrar campos sensibles de todos los consultantes
-  const decrypted = data?.map((consultante) => ({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const decrypted = data?.map((consultante: any) => ({
     ...consultante,
     nombre_completo: decrypt(consultante.nombre_completo),
     email: consultante.email ? decrypt(consultante.email) : null,

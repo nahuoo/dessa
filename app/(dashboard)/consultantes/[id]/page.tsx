@@ -21,7 +21,8 @@ export default async function ConsultanteDetailPage({
 
   // Obtener sesiones del consultante
   const supabase = await createClient();
-  const { data: sesiones = [] } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { data: sesiones = [] as any[] } = await supabase
     .from('sesiones')
     .select('*')
     .eq('consultante_id', id)

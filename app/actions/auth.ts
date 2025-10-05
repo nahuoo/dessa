@@ -19,7 +19,7 @@ export async function login(formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return {
       error: errors,
     };
@@ -61,7 +61,7 @@ export async function signup(formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return {
       error: errors,
     };

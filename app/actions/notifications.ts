@@ -6,11 +6,6 @@ import { format, differenceInHours, differenceInMinutes } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { revalidatePath } from 'next/cache';
 
-interface NotificationPreferences {
-  email_recordatorios: boolean;
-  horas_anticipacion: number; // 24, 2, 1
-}
-
 interface Notificacion {
   id: string;
   tipo: string;
@@ -33,7 +28,8 @@ export async function getNotificationPreferences() {
     return { error: 'No autenticado' };
   }
 
-  const { data: profile } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { data: profile = {} as any } = await supabase
     .from('profiles')
     .select('email_recordatorios, horas_anticipacion')
     .eq('id', user.id)
@@ -61,7 +57,8 @@ export async function updateNotificationPreferences(formData: FormData) {
   const emailRecordatorios = formData.get('email_recordatorios') === 'true';
   const horasAnticipacion = parseInt(formData.get('horas_anticipacion') as string);
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('profiles')
     .update({
       email_recordatorios: emailRecordatorios,
@@ -86,7 +83,8 @@ export async function getCitasParaRecordatorio() {
   if (!user) return { data: [] };
 
   // Obtener preferencias del usuario
-  const { data: profile } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { data: profile = {} as any } = await supabase
     .from('profiles')
     .select('email_recordatorios, horas_anticipacion')
     .eq('id', user.id)
@@ -122,7 +120,8 @@ export async function getCitasParaRecordatorio() {
 export async function marcarRecordatorioEnviado(citaId: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('citas')
     .update({ recordatorio_enviado: true })
     .eq('id', citaId);
@@ -275,7 +274,8 @@ export async function marcarNotificacionLeida(notificacionId: string) {
     return { error: 'No autenticado' };
   }
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('notificaciones')
     .update({ leida: true })
     .eq('id', notificacionId)
@@ -301,7 +301,8 @@ export async function marcarTodasLeidas() {
     return { error: 'No autenticado' };
   }
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('notificaciones')
     .update({ leida: true })
     .eq('profesional_id', user.id)
@@ -357,7 +358,8 @@ export async function crearNotificacionCitaProxima(
     return { error: 'No autenticado' };
   }
 
-  const { error } = await supabase.rpc('crear_notificacion_cita_proxima', {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any).rpc('crear_notificacion_cita_proxima', {
     p_profesional_id: user.id,
     p_cita_id: citaId,
     p_consultante_nombre: consultanteNombre,

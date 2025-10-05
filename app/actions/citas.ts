@@ -45,7 +45,8 @@ async function checkScheduleConflict(
   }
 
   // Verificar solapamiento real
-  const conflicts = citasEnRango.filter((cita) => {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const conflicts = citasEnRango.filter((cita: any) => {
     const citaStart = new Date(cita.fecha_hora);
     const citaEnd = new Date(citaStart.getTime() + cita.duracion * 60000);
 
@@ -57,7 +58,8 @@ async function checkScheduleConflict(
 
   return {
     hasConflict: conflicts.length > 0,
-    conflicts: conflicts.map((c) => ({
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    conflicts: conflicts.map((c: any) => ({
       id: c.id,
       fecha_hora: c.fecha_hora,
       duracion: c.duracion,
@@ -88,7 +90,7 @@ export async function createCita(formData: FormData) {
   const validatedFields = citaSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -124,7 +126,8 @@ export async function createCita(formData: FormData) {
     };
   }
 
-  const { error } = await supabase.from('citas').insert({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any).from('citas').insert({
     consultante_id: data.consultante_id,
     fecha_hora: new Date(data.fecha_hora).toISOString(),
     duracion: data.duracion,
@@ -169,7 +172,7 @@ export async function updateCita(formData: FormData) {
   const validatedFields = citaSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -206,7 +209,8 @@ export async function updateCita(formData: FormData) {
     };
   }
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('citas')
     .update({
       consultante_id: data.consultante_id,

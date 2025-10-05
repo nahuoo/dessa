@@ -65,7 +65,8 @@ export async function getDashboardStats(
     }
 
     // Obtener estadísticas de consultantes
-    const { data: consultantes, error: consultantesError } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: consultantes = [] as any[], error: consultantesError } = await supabase
       .from('consultantes')
       .select('estado')
       .eq('profesional_id', user.id);
@@ -76,10 +77,10 @@ export async function getDashboardStats(
     }
 
     const consultantesStats = {
-      total: consultantes.length,
-      activos: consultantes.filter((c) => c.estado === 'activo').length,
-      inactivos: consultantes.filter((c) => c.estado === 'inactivo').length,
-      enPausa: consultantes.filter((c) => c.estado === 'en_pausa').length,
+      total: consultantes?.length || 0,
+      activos: consultantes?.filter((c) => c.estado === 'activo').length || 0,
+      inactivos: consultantes?.filter((c) => c.estado === 'inactivo').length || 0,
+      enPausa: consultantes?.filter((c) => c.estado === 'en_pausa').length || 0,
     };
 
     // Obtener estadísticas de sesiones
@@ -155,7 +156,8 @@ export async function getDashboardStats(
     };
 
     // Obtener actividad reciente - últimas 5 sesiones
-    const { data: ultimasSesiones } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: ultimasSesiones = [] as any[] } = await supabase
       .from('sesiones')
       .select('id, fecha, tipo, consultante_id, consultantes!inner(nombre_encrypted, profesional_id)')
       .eq('consultantes.profesional_id', user.id)
@@ -163,7 +165,8 @@ export async function getDashboardStats(
       .limit(5);
 
     // Obtener próximas 5 citas
-    const { data: proximasCitasDetalle } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: proximasCitasDetalle = [] as any[] } = await supabase
       .from('citas')
       .select('id, fecha, hora, tipo, consultante_id, consultantes!inner(nombre_encrypted, profesional_id)')
       .eq('consultantes.profesional_id', user.id)

@@ -21,7 +21,8 @@ export async function getSesionesUltimosMeses(meses: number = 6) {
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth() - meses + 1, 1);
 
-    const { data: sesiones, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: sesiones = [] as any[], error } = await supabase
       .from('sesiones')
       .select('fecha, consultantes!inner(profesional_id)')
       .eq('consultantes.profesional_id', user.id)
@@ -54,13 +55,13 @@ export async function getSesionesUltimosMeses(meses: number = 6) {
 
     // Convertir a array para el gráfico
     const data = Object.entries(sesionesporMes).map(([mes, cantidad]) => {
-      const [year, month] = mes.split('-');
+      const [_year, month] = mes.split('-');
       const monthNames = [
         'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
       ];
       return {
-        mes: monthNames[parseInt(month) - 1],
+        mes: month ? (monthNames[parseInt(month) - 1] || 'N/A') : 'N/A',
         cantidad,
         fullDate: mes,
       };
@@ -89,7 +90,8 @@ export async function getSesionesPorModalidad() {
       return { error: 'No autorizado', data: null };
     }
 
-    const { data: sesiones, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: sesiones = [] as any[], error } = await supabase
       .from('sesiones')
       .select('modalidad, consultantes!inner(profesional_id)')
       .eq('consultantes.profesional_id', user.id);
@@ -107,8 +109,9 @@ export async function getSesionesPorModalidad() {
     };
 
     sesiones?.forEach((sesion) => {
-      if (modalidades[sesion.modalidad] !== undefined) {
-        modalidades[sesion.modalidad]++;
+      const modalidad = sesion.modalidad;
+      if (modalidad && modalidades[modalidad] !== undefined) {
+        modalidades[modalidad]++;
       }
     });
 
@@ -116,7 +119,7 @@ export async function getSesionesPorModalidad() {
       { name: 'Presencial', value: modalidades.presencial },
       { name: 'Videollamada', value: modalidades.videollamada },
       { name: 'Telefónica', value: modalidades['telefónica'] },
-    ].filter((item) => item.value > 0); // Solo mostrar modalidades con sesiones
+    ].filter((item) => (item.value ?? 0) > 0); // Solo mostrar modalidades con sesiones
 
     return { data, error: null };
   } catch (error) {

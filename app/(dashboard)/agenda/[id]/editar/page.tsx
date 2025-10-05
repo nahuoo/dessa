@@ -37,12 +37,14 @@ export default function EditCitaPage({ params }: { params: Promise<{ id: string 
 
         if (citaResult.error || !citaResult.data) {
           setError('No se pudo cargar la cita');
+          setLoading(false);
           return;
         }
 
-        setCita(citaResult.data);
+        const cita = citaResult.data;
+        setCita(cita);
         setConsultantes(consultantesResult.data || []);
-      } catch (err) {
+      } catch {
         setError('Error al cargar los datos');
       } finally {
         setLoading(false);

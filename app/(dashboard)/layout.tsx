@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { GlobalSearch } from '@/components/layout/global-search';
 import { LogoutButton } from '@/components/layout/logout-button';
 import { NotificationsPanel } from '@/components/layout/notifications-panel';
+import { FloatingAssistant } from '@/components/assistant/floating-assistant';
 import { getNotificacionesNoLeidasCount } from '@/app/actions/notifications';
 
 export const metadata: Metadata = {
@@ -116,6 +117,9 @@ export default async function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Asistente Virtual Flotante */}
+      <FloatingAssistant profesionalId={user.id} nombreAsistente="Dessa" />
     </div>
   );
 }

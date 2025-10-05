@@ -23,14 +23,16 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.toLowerCase().trim();
 
     // Buscar en consultantes
-    const { data: consultantes } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: consultantes = [] as any[] } = await supabase
       .from('consultantes')
       .select('id, nombre_completo, email, estado')
       .eq('profesional_id', user.id)
       .limit(10);
 
     // Buscar en sesiones
-    const { data: sesiones } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data: sesiones = [] as any[] } = await supabase
       .from('sesiones')
       .select('id, fecha, notas, consultantes!inner(id, nombre_completo, profesional_id)')
       .eq('consultantes.profesional_id', user.id)

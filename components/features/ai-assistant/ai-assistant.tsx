@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useChat } from 'ai/react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface AIAssistantProps {
@@ -13,66 +11,14 @@ interface AIAssistantProps {
 }
 
 export function AIAssistant({
-  initialNotes = '',
-  onSuggestionAccept,
-  type = 'SESSION_SUMMARY'
+  initialNotes: _initialNotes = '',
+  onSuggestionAccept: _onSuggestionAccept,
+  type: _type = 'SESSION_SUMMARY'
 }: AIAssistantProps) {
-  const [_prompt, setPrompt] = useState('');
   const [showAssistant, setShowAssistant] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    api: '/api/ai/chat',
-    body: {
-      type,
-    },
-    initialMessages: initialNotes
-      ? [
-          {
-            id: '1',
-            role: 'user',
-            content: `Aquí están mis notas de la sesión:\n\n${initialNotes}\n\nPor favor, ayúdame a generar un resumen profesional.`,
-          },
-        ]
-      : [],
-  });
-
-  const handleQuickPrompt = (promptText: string) => {
-    setPrompt(promptText);
-    const syntheticEvent = {
-      preventDefault: () => {},
-    } as React.FormEvent<HTMLFormElement>;
-
-    handleInputChange({
-      target: { value: promptText },
-    } as React.ChangeEvent<HTMLInputElement>);
-
-    setTimeout(() => {
-      handleSubmit(syntheticEvent);
-    }, 100);
-  };
-
-  const quickPrompts = {
-    SESSION_SUMMARY: [
-      'Resume los puntos clave de esta sesión',
-      'Identifica las emociones principales expresadas',
-      'Sugiere objetivos para la próxima sesión',
-    ],
-    THERAPEUTIC_GOALS: [
-      'Genera 5 objetivos terapéuticos SMART',
-      'Prioriza los objetivos por importancia',
-      'Sugiere métricas para medir el progreso',
-    ],
-    PATTERN_ANALYSIS: [
-      'Identifica patrones recurrentes',
-      'Analiza la evolución emocional',
-      'Detecta áreas de mejora',
-    ],
-    INTERVENTION_SUGGESTIONS: [
-      'Sugiere técnicas de CBT aplicables',
-      'Recomienda ejercicios para el consultante',
-      'Propón estrategias de afrontamiento',
-    ],
-  };
+  // TODO: Actualizar a la nueva API de useChat en ai-sdk v5
+  // Componente temporalmente deshabilitado hasta actualizar a la nueva API
 
   if (!showAssistant) {
     return (
@@ -140,91 +86,13 @@ export function AIAssistant({
         </div>
       </CardHeader>
       <CardContent>
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-            {error.message || 'Error al comunicarse con el asistente de IA'}
-          </div>
-        )}
-
-        {/* Prompts rápidos */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mb-2">Sugerencias rápidas:</p>
-          <div className="flex flex-wrap gap-2">
-            {quickPrompts[type].map((promptText, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => handleQuickPrompt(promptText)}
-                disabled={isLoading}
-                className="px-3 py-1 text-xs bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 disabled:opacity-50"
-              >
-                {promptText}
-              </button>
-            ))}
-          </div>
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
+          <p className="font-medium">Función temporalmente deshabilitada</p>
+          <p className="text-sm mt-1">
+            El asistente de IA está siendo actualizado para funcionar con la última versión de la biblioteca.
+            Estará disponible próximamente.
+          </p>
         </div>
-
-        {/* Mensajes del chat */}
-        <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`p-3 rounded-lg ${
-                message.role === 'user'
-                  ? 'bg-indigo-50 ml-8'
-                  : 'bg-gray-50 mr-8'
-              }`}
-            >
-              <p className="text-xs font-semibold text-gray-600 mb-1">
-                {message.role === 'user' ? 'Tú' : 'Asistente'}
-              </p>
-              <div className="text-sm text-gray-900 whitespace-pre-line">
-                {message.content}
-              </div>
-              {message.role === 'assistant' && onSuggestionAccept && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="mt-2"
-                  onClick={() => onSuggestionAccept(message.content)}
-                >
-                  Usar esta sugerencia
-                </Button>
-              )}
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="bg-gray-50 mr-8 p-3 rounded-lg">
-              <p className="text-xs font-semibold text-gray-600 mb-1">
-                Asistente
-              </p>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <div className="animate-pulse">Escribiendo...</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input del chat */}
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Escribe tu pregunta o solicitud..."
-            rows={2}
-            disabled={isLoading}
-          />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
-            {isLoading ? 'Enviando...' : 'Enviar'}
-          </Button>
-        </form>
-
-        <p className="text-xs text-gray-500 mt-2">
-          💡 El asistente de IA está aquí para ayudarte, pero siempre revisa
-          y adapta sus sugerencias a tu criterio profesional.
-        </p>
       </CardContent>
     </Card>
   );

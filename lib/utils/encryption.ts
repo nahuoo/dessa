@@ -5,9 +5,10 @@ import CryptoJS from 'crypto-js';
  * Usa AES-256 para el cifrado simétrico
  */
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
 
 if (!ENCRYPTION_KEY) {
+  console.error('ENCRYPTION_KEY no está definida en las variables de entorno');
   throw new Error('ENCRYPTION_KEY no está definida en las variables de entorno');
 }
 

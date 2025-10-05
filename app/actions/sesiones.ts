@@ -41,7 +41,7 @@ export async function createSesion(formData: FormData) {
   const validatedFields = sesionSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -72,7 +72,8 @@ export async function createSesion(formData: FormData) {
     estado: data.estado,
   };
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('sesiones')
     .insert(encryptedData)
     .select()
@@ -119,7 +120,7 @@ export async function updateSesion(formData: FormData) {
   const validatedFields = updateSesionSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
-    const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+    const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
     return { error: errors };
   }
 
@@ -137,7 +138,8 @@ export async function updateSesion(formData: FormData) {
     estado: data.estado,
   };
 
-  const { error } = await supabase
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const { error } = await (supabase as any)
     .from('sesiones')
     .update(encryptedData)
     .eq('id', sesionId)
@@ -203,9 +205,11 @@ export async function getSesion(sesionId: string) {
   }
 
   // Descifrar notas
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const dataAny = data as any;
   const decrypted = {
-    ...data,
-    notas: data.notas ? decrypt(data.notas) : null,
+    ...dataAny,
+    notas: dataAny.notas ? decrypt(dataAny.notas) : null,
   };
 
   return { data: decrypted, error: null };
@@ -242,7 +246,8 @@ export async function getSesiones(consultanteId?: string) {
   }
 
   // Descifrar notas de todas las sesiones
-  const decrypted = data?.map((sesion) => ({
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const decrypted = data?.map((sesion: any) => ({
     ...sesion,
     notas: sesion.notas ? decrypt(sesion.notas) : null,
   }));

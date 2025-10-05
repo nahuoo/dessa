@@ -46,11 +46,12 @@ export async function updateProfile(formData: FormData) {
     const validatedFields = updateProfileSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
-      const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+      const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
       return { error: errors };
     }
 
-    const { error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { error } = await (supabase as any)
       .from('profiles')
       .update({
         nombre_completo: validatedFields.data.nombre_completo,
@@ -98,7 +99,7 @@ export async function updatePassword(formData: FormData) {
     const validatedFields = updatePasswordSchema.safeParse(rawData);
 
     if (!validatedFields.success) {
-      const errors = validatedFields.error.errors.map((err) => err.message).join(', ');
+      const errors = validatedFields.error.issues.map((err) => err.message).join(', ');
       return { error: errors };
     }
 
@@ -156,7 +157,8 @@ export async function getProfile() {
       return { error: 'Error al obtener el perfil' };
     }
 
-    return { data: { ...profile, email: user.email } };
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    return { data: { ...(profile as any), email: user.email } };
   } catch (error) {
     console.error('Error en getProfile:', error);
     return { error: 'Error inesperado al obtener el perfil' };

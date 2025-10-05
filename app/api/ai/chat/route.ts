@@ -41,12 +41,12 @@ export async function POST(req: Request) {
         ...messages,
       ],
       temperature: 0.7,
-      maxTokens: 1500,
       async onFinish({ text }) {
         // Registrar interacción con IA (auditoría)
         const tokensUsed = text.split(' ').length * 1.3; // Estimación aproximada
 
-        await supabase.from('ai_interactions').insert({
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        await (supabase as any).from('ai_interactions').insert({
           profesional_id: user.id,
           tipo: type,
           prompt_hash: promptHash,
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error en AI chat:', error);
     return new Response(

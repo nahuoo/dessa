@@ -184,7 +184,8 @@ export default async function ConsultanteDetailPage({
                     Objetivos terapéuticos
                   </p>
                   <ul className="list-disc list-inside space-y-1">
-                    {consultante.objetivos_terapeuticos.map((objetivo, index) => (
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {consultante.objetivos_terapeuticos.map((objetivo: any, index: number) => (
                       <li key={index} className="text-gray-900">
                         {objetivo}
                       </li>

@@ -279,12 +279,29 @@ Crear una herramienta profesional que permita a psicólogos y terapeutas:
   - `sesiones` - Registro de sesiones terapéuticas
   - `citas` - Citas programadas
   - `ai_interactions` - Log de uso de IA
+  - `notificaciones` - Sistema de notificaciones in-app
 - ✅ Row Level Security (RLS) activo
 - ✅ Políticas de acceso por usuario
 - ✅ Relaciones entre tablas configuradas
 - ✅ Campos de notificaciones en profiles (email_recordatorios, horas_anticipacion)
 
-### 12. **API Endpoints**
+### 12. **Sistema de Notificaciones** 🔔
+- ✅ Notificaciones in-app en tiempo real
+- ✅ Badge con contador de notificaciones no leídas
+- ✅ Panel desplegable con lista de notificaciones
+- ✅ Marcar como leída (individual o todas)
+- ✅ Eliminar notificaciones
+- ✅ Navegación al hacer click en notificación
+- ✅ Tipos de notificación:
+  - Recordatorio de cita próxima
+  - Cita cancelada
+  - Nueva tarea asignada
+- ✅ Formateo de fechas relativas (hace X minutos)
+- ✅ Iconos distintivos por tipo
+- ✅ Función de base de datos para crear notificaciones automáticas
+- ✅ Server actions para gestión completa
+
+### 13. **API Endpoints**
 - ✅ `/api/search` - Búsqueda global con descifrado
 - ✅ `/api/ai/chat` - Integración con OpenRouter vía ai-sdk v5
 
@@ -366,6 +383,20 @@ Crear una herramienta profesional que permita a psicólogos y terapeutas:
   costo: decimal?
   created_at: timestamp
 }
+
+// notificaciones
+{
+  id: uuid (PK)
+  profesional_id: uuid (FK a profiles)
+  tipo: varchar(50) (cita_proxima, cita_cancelada, tarea_asignada)
+  titulo: text
+  mensaje: text
+  link: text?
+  leida: boolean (default: false)
+  metadata: jsonb?
+  created_at: timestamp
+  updated_at: timestamp
+}
 ```
 
 ---
@@ -443,7 +474,8 @@ Crear una herramienta profesional que permita a psicólogos y terapeutas:
 - ✅ Detección de conflictos de horarios
 - ✅ Migración a ai-sdk v5
 - ✅ Componente LogoutButton optimizado
-- ✅ ~800 líneas adicionales de código
+- ✅ Sistema de notificaciones in-app completo
+- ✅ ~1,200 líneas adicionales de código
 
 ### Performance
 - **Build time:** ~11s (con Turbopack)
@@ -466,14 +498,17 @@ Crear una herramienta profesional que permita a psicólogos y terapeutas:
 - Diseño responsive
 - **Búsqueda global con keyboard shortcuts**
 - **Sistema de citas avanzado con calendario y detección de conflictos**
+- **Sistema de notificaciones in-app completo**
 - Integración con IA vía OpenRouter
+- **Deploy en Vercel (fixes de TypeScript aplicados)**
 
 ### 📋 Próximas Mejoras Sugeridas
 - Gráficos y reportes en dashboard
 - Gestión de documentos
-- Sistema de notificaciones por email
+- Sistema de notificaciones por email/SMS
 - Modo oscuro
 - Exportación de datos (PDF, CSV)
+- Integración con calendario (Google Calendar, Outlook)
 
 ---
 
@@ -575,9 +610,12 @@ npm run type-check   # Verificación de tipos
 - ✅ TypeScript + Zod = validación robusta
 - ✅ Keyboard shortcuts mejoran la UX profesional
 - ✅ Validación de conflictos es esencial en sistemas de citas
+- ✅ Notificaciones in-app mejoran engagement
 - ⚠️ Cuidado con rate limits de APIs de IA
 - ⚠️ El paquete `ai` v5 tiene breaking changes vs v4
 - ⚠️ useTransition es mejor que forms para Server Actions con feedback
+- ⚠️ TypeScript puede tener problemas con discriminated unions después de early returns
+- ⚠️ Type assertions (`as any`) son necesarias en algunos casos con Supabase joins
 
 ---
 
@@ -587,5 +625,42 @@ Todos los derechos reservados © 2025 DessaTech
 
 ---
 
-**Última actualización:** 4 de octubre de 2025, 5:47 PM
+**Última actualización:** 5 de octubre de 2025, 1:30 AM
 **Desarrollado con ❤️ y ☕**
+
+---
+
+## 📝 Notas de la Sesión Nocturna (5 de octubre)
+
+### Trabajo Realizado
+1. **Sistema de Notificaciones Completado** ✅
+   - Migración de base de datos aplicada exitosamente
+   - Server actions implementados y funcionando
+   - UI con badge de contador y panel desplegable
+   - Función SQL para crear notificaciones automáticas
+
+2. **Fixes de TypeScript para Vercel Deploy** ✅
+   - Resueltos errores de type narrowing con discriminated unions
+   - Aplicadas type assertions donde era necesario
+   - Removidos imports no utilizados
+   - Build de Vercel ahora compila exitosamente
+
+3. **Archivos Modificados**
+   - `app/(dashboard)/agenda/[id]/editar/page.tsx` - Fix type narrowing
+   - `app/(dashboard)/agenda/[id]/page.tsx` - Type assertion para data
+   - `app/(dashboard)/agenda/page.tsx` - Type annotations en callbacks
+   - `app/(dashboard)/consultantes/[id]/editar/page.tsx` - Removed unused router
+
+### Estado Actual
+- ✅ Todas las funcionalidades implementadas y funcionando
+- ✅ Notificaciones in-app operativas
+- ✅ Deploy en Vercel exitoso
+- ✅ Código pusheado a GitHub
+
+### Pendiente para Mañana
+- Verificar que el deploy de Vercel esté completamente funcional
+- Considerar implementación de features sugeridos:
+  - Gráficos en dashboard
+  - Gestión de documentos
+  - Notificaciones por email
+  - Modo oscuro

@@ -4,10 +4,22 @@ import { createClient } from '@/lib/supabase/server';
 import { decrypt } from '@/lib/utils/encryption';
 import { format, differenceInHours, differenceInMinutes } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { revalidatePath } from 'next/cache';
 
 interface NotificationPreferences {
   email_recordatorios: boolean;
   horas_anticipacion: number; // 24, 2, 1
+}
+
+interface Notificacion {
+  id: string;
+  tipo: string;
+  titulo: string;
+  mensaje: string;
+  link?: string;
+  leida: boolean;
+  created_at: string;
+  metadata?: any;
 }
 
 /**
@@ -199,4 +211,164 @@ export async function enviarRecordatorioEmail(citaId: string) {
     success: true,
     message: 'Recordatorio preparado (integración de email pendiente)'
   };
+}
+
+/**
+ * Obtener todas las notificaciones del usuario
+ */
+export async function getNotificaciones() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: [], error: 'No autenticado' };
+  }
+
+  const { data, error } = await supabase
+    .from('notificaciones')
+    .select('*')
+    .eq('profesional_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('Error al obtener notificaciones:', error);
+    return { data: [], error: error.message };
+  }
+
+  return { data: data as Notificacion[], error: null };
+}
+
+/**
+ * Obtener contador de notificaciones no leídas
+ */
+export async function getNotificacionesNoLeidasCount() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { count: 0 };
+  }
+
+  const { count, error } = await supabase
+    .from('notificaciones')
+    .select('*', { count: 'exact', head: true })
+    .eq('profesional_id', user.id)
+    .eq('leida', false);
+
+  if (error) {
+    console.error('Error al contar notificaciones:', error);
+    return { count: 0 };
+  }
+
+  return { count: count || 0 };
+}
+
+/**
+ * Marcar una notificación como leída
+ */
+export async function marcarNotificacionLeida(notificacionId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'No autenticado' };
+  }
+
+  const { error } = await supabase
+    .from('notificaciones')
+    .update({ leida: true })
+    .eq('id', notificacionId)
+    .eq('profesional_id', user.id);
+
+  if (error) {
+    console.error('Error al marcar notificación:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
+ * Marcar todas las notificaciones como leídas
+ */
+export async function marcarTodasLeidas() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'No autenticado' };
+  }
+
+  const { error } = await supabase
+    .from('notificaciones')
+    .update({ leida: true })
+    .eq('profesional_id', user.id)
+    .eq('leida', false);
+
+  if (error) {
+    console.error('Error al marcar todas como leídas:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
+ * Eliminar una notificación
+ */
+export async function eliminarNotificacion(notificacionId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'No autenticado' };
+  }
+
+  const { error } = await supabase
+    .from('notificaciones')
+    .delete()
+    .eq('id', notificacionId)
+    .eq('profesional_id', user.id);
+
+  if (error) {
+    console.error('Error al eliminar notificación:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/');
+  return { success: true };
+}
+
+/**
+ * Crear notificación de cita próxima
+ */
+export async function crearNotificacionCitaProxima(
+  citaId: string,
+  consultanteNombre: string,
+  fechaHora: Date
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'No autenticado' };
+  }
+
+  const { error } = await supabase.rpc('crear_notificacion_cita_proxima', {
+    p_profesional_id: user.id,
+    p_cita_id: citaId,
+    p_consultante_nombre: consultanteNombre,
+    p_fecha_hora: fechaHora.toISOString(),
+  });
+
+  if (error) {
+    console.error('Error al crear notificación:', error);
+    return { error: error.message };
+  }
+
+  revalidatePath('/');
+  return { success: true };
 }

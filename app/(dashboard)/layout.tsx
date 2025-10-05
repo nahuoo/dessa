@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { GlobalSearch } from '@/components/layout/global-search';
 import { LogoutButton } from '@/components/layout/logout-button';
+import { NotificationsPanel } from '@/components/layout/notifications-panel';
+import { getNotificacionesNoLeidasCount } from '@/app/actions/notifications';
 
 export const metadata: Metadata = {
   title: 'Dashboard - DessaTech',
@@ -31,6 +33,9 @@ export default async function DashboardLayout({
     .select('*')
     .eq('id', user.id)
     .single<Tables<'profiles'>>();
+
+  // Obtener contador de notificaciones no leídas
+  const { count: unreadCount } = await getNotificacionesNoLeidasCount();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,6 +78,7 @@ export default async function DashboardLayout({
             </div>
             <div className="flex items-center gap-4">
               <GlobalSearch />
+              <NotificationsPanel initialCount={unreadCount} />
               <span className="text-sm text-gray-600">
                 {profile?.nombre_completo || user.email}
               </span>

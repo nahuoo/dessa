@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { getConsultante, updateConsultante } from '@/app/actions/consultantes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,6 @@ import Link from 'next/link';
 
 export default function EditarConsultantePage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
 
   const [error, setError] = useState<string | null>(null);

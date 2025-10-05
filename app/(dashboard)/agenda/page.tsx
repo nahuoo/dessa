@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import type { Tables } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -28,11 +27,14 @@ export default async function AgendaPage() {
 
   // Separar citas futuras y pasadas
   const now = new Date();
-  const citasFuturas = citas?.filter((c) => new Date(c.fecha_hora) >= now) || [];
-  const citasPasadas = citas?.filter((c) => new Date(c.fecha_hora) < now) || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const citasFuturas = citas?.filter((c: any) => new Date(c.fecha_hora) >= now) || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const citasPasadas = citas?.filter((c: any) => new Date(c.fecha_hora) < now) || [];
 
   // Preparar datos para el calendario
-  const citasParaCalendario = citas?.map(cita => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const citasParaCalendario = citas?.map((cita: any) => ({
     id: cita.id,
     fecha_hora: cita.fecha_hora,
     consultante_nombre: decrypt(cita.consultantes.nombre_completo),
@@ -89,7 +91,8 @@ export default async function AgendaPage() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {citasFuturas.map((cita) => {
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {citasFuturas.map((cita: any) => {
                 const consultanteNombre = decrypt(cita.consultantes.nombre_completo);
                 const fechaCita = new Date(cita.fecha_hora);
                 const esHoy = fechaCita.toDateString() === now.toDateString();
@@ -171,7 +174,8 @@ export default async function AgendaPage() {
           </h2>
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="divide-y divide-gray-200">
-              {citasPasadas.slice(0, 5).map((cita) => {
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {citasPasadas.slice(0, 5).map((cita: any) => {
                 const consultanteNombre = decrypt(cita.consultantes.nombre_completo);
                 const fechaCita = new Date(cita.fecha_hora);
 

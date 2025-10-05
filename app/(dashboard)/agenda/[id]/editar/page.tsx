@@ -30,20 +30,24 @@ export default function EditCitaPage({ params }: { params: Promise<{ id: string 
 
     async function loadData() {
       try {
-        const [citaResult, consultantesResult] = await Promise.all([
-          getCita(id),
-          getConsultantes(),
-        ]);
+        const citaResult = await getCita(id);
+        const consultantesResult = await getConsultantes();
 
-        if (citaResult.error || !citaResult.data) {
+        // Check for error first
+        if (citaResult.error) {
           setError('No se pudo cargar la cita');
           setLoading(false);
           return;
         }
 
-        const cita = citaResult.data;
-        setCita(cita);
-        setConsultantes(consultantesResult.data || []);
+        // Use type assertion to work around TypeScript's limitation with discriminated unions
+        const citaData = citaResult.data as Awaited<ReturnType<typeof getCita>>['data'];
+        if (citaData) {
+          setCita(citaData);
+          setConsultantes(consultantesResult.data || []);
+        } else {
+          setError('No se pudo cargar la cita');
+        }
       } catch {
         setError('Error al cargar los datos');
       } finally {
@@ -60,9 +64,10 @@ export default function EditCitaPage({ params }: { params: Promise<{ id: string 
     setError('');
 
     const formData = new FormData(e.currentTarget);
-    const result = await updateCita(id, formData);
+    formData.append('id', id);
+    const result = await updateCita(formData);
 
-    if (result.error) {
+    if (result?.error) {
       setError(result.error);
       setSubmitting(false);
     } else {

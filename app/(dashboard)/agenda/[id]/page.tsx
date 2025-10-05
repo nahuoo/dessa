@@ -13,12 +13,14 @@ export default async function CitaDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: cita, error } = await getCita(id);
+  const { data, error } = await getCita(id);
 
-  if (error || !cita) {
+  if (error || !data) {
     notFound();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cita = data as any;
   const consultanteNombre = decrypt(cita.consultantes.nombre_completo);
   const fechaCita = new Date(cita.fecha_hora);
   const ahora = new Date();

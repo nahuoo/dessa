@@ -147,8 +147,13 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('Error en assistant chat:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
     return Response.json(
-      { error: 'Error al procesar el mensaje' },
+      {
+        error: 'Error al procesar el mensaje',
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
